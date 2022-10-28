@@ -16,7 +16,7 @@ switch eye_pos
 end
 
 % 12 sample images, so loop 12 times
-for img = 1:4
+for img = 1:1
     %load in images (all are grayscale bitmaps of size 320x240)
     % from MMU Iris database
     eyes(img).orig = im2gray(imread(strcat('.\training\',string(subject),'\',pos,'\','s',string(subject),eye_pos,'_',string(img),'.bmp')));
@@ -160,7 +160,7 @@ eyes_test = struct();
 for img = 1:1
     %load in images (all are grayscale bitmaps of size 320x240)
     % from MMU Iris database
-    eyes_test(img).orig = im2gray(imread(strcat('.\training\',string(subject),'\',pos,'\','t',string(subject),eye_pos,'_',string(img),'.bmp')));
+    eyes_test(img).orig = im2gray(imread(strcat('..\s_t_eyes\',string(subject),'\',pos,'\','t',string(subject),eye_pos,'_',string(img),'.bmp')));
     
     %Edge Detection: Canny Edge Detector
     eyes_test(img).edge = edge(eyes_test(img).orig,'canny',0.15,3);
