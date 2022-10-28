@@ -4,8 +4,8 @@ import cv2 as cv
 
 class iris_detection():
     def __init__(self, image_path):
-        self.cimg = None
-        self.gimg = None
+        self.cimg = None # original color image
+        self.gimg = None # working gray image
         self.img_path = image_path
         self.edges = None
 
