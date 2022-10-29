@@ -19,22 +19,27 @@ class iris_detection():
 
     def convert_im2gray(self):
         self.gimg = cv.cvtColor(self.cimg, cv.COLOR_BGR2GRAY)
-        cv.imshow('gray image', self.gimg)
-        cv.waitKey(0)
-        cv.destroyAllWindows()
+        # cv.imshow('gray image', self.gimg)
+        # cv.waitKey(0)
+        # cv.destroyAllWindows()
 
     def edge_detection(self):
+        # blur image
         self.gimg = cv.GaussianBlur(self.gimg, (7,7), cv.BORDER_DEFAULT)
-        cv.imshow('blurred image', self.gimg)
-        cv.waitKey(0)
-        cv.destroyAllWindows()
+        # cv.imshow('blurred image', self.gimg)
+        # cv.waitKey(0)
+        # cv.destroyAllWindows()
+
         # self.gimg = cv.medianBlur(self.gimg, 3)
         # self.img = cv.adaptiveThreshold(self.img, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 9, 2)
-        lower_thres = 32 #17
-        self.gimg = cv.Canny(self.gimg, lower_thres, 3 * lower_thres)
-        cv.imshow('canny image', self.gimg)
-        cv.waitKey(0)
-        cv.destroyAllWindows()
+        # lower_thres = 32 #17
+        # self.gimg = cv.Canny(self.gimg, lower_thres, 3 * lower_thres)
+
+        # canny detection
+        self.gimg = cv.Canny(self.gimg, 40, 80)
+        # cv.imshow('canny image', self.gimg)
+        # cv.waitKey(0)
+        # cv.destroyAllWindows()
 
     def get_pupil(self):
         # ret, self.gimg = cv.threshold(self.gimg, 50, 255, 0)
@@ -43,14 +48,14 @@ class iris_detection():
         # im = cv.imread('test.bmp')
         # imgray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
         # ret, thresh = cv.threshold(self.img, 127, 255, 0)
-        contours, hierarchy = cv.findContours(self.gimg, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+        # contours, hierarchy = cv.findContours(self.gimg, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
         # cv.drawContours(self.cimg, contours, -1, (0,255,0), 3)
         # Hough Transform
-        circles = cv.HoughCircles(self.gimg, cv.HOUGH_GRADIENT, 1, 200, param1=90, param2=0.9, minRadius=0, maxRadius=0)
+        circles = cv.HoughCircles(self.gimg, cv.HOUGH_GRADIENT, 1, 300, param1=80, param2=0.8, minRadius=0, maxRadius=30)
         circles = np.uint16(np.around(circles))
         for i in circles[0,:]:
             # draw the outer circle
-            cv.circle(self.cimg, (i[0],i[1]), i[2], (0,255,0), 1)
+            cv.circle(self.cimg, (i[0],i[1]), i[2], (0,255,0), 2)
             # draw the center of the circle
             cv.circle(self.cimg, (i[0],i[1]), 2, (0,0,255), 2)
         cv.imshow('detected circles', self.cimg)
@@ -68,7 +73,7 @@ class iris_detection():
         else:
             print ('Image "' + self.img_path + '" could not be loaded.')
 
-for i in range(2):
+for i in range(12):
     id = iris_detection("./s_t_eyes/" + 's' + str(i + 1) + ".bmp")
     print("Viewing eye number: \t" + str(i + 1) + "\n")
     id.detect()
