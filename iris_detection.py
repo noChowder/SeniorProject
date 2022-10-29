@@ -51,7 +51,7 @@ class iris_detection():
         # contours, hierarchy = cv.findContours(self.gimg, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
         # cv.drawContours(self.cimg, contours, -1, (0,255,0), 3)
         # Hough Transform
-        circles = cv.HoughCircles(self.gimg, cv.HOUGH_GRADIENT, 1, 300, param1=80, param2=0.8, minRadius=0, maxRadius=30)
+        circles = cv.HoughCircles(self.gimg, cv.HOUGH_GRADIENT, 1, 300, param1=80, param2=0.8, minRadius=0, maxRadius=35)
         circles = np.uint16(np.around(circles))
         for i in circles[0,:]:
             # draw the outer circle
