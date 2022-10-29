@@ -58,18 +58,22 @@ class iris_detection():
             cv.circle(self.cimg, (i[0],i[1]), i[2], (0,255,0), 2)
             # draw the center of the circle
             cv.circle(self.cimg, (i[0],i[1]), 2, (0,0,255), 2)
-        cv.imshow('detected circles', self.cimg)
-        cv.waitKey(0)
-        cv.destroyAllWindows()
+        # cv.imshow('detected circles', self.cimg)
+        # cv.waitKey(0)
+        # cv.destroyAllWindows()
+
+    def get_iris(self):
+        # do something
+        pass
 
     def detect(self):
         if (self.load_image()):
             self.convert_im2gray()
             self.edge_detection()
             self.get_pupil()
-            # cv.imshow("result", self.cimg)
-            # cv.waitKey(0)
-            # cv.destroyAllWindows()
+            cv.imshow("result", self.cimg)
+            cv.waitKey(0)
+            cv.destroyAllWindows()
         else:
             print ('Image "' + self.img_path + '" could not be loaded.')
 
