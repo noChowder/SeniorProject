@@ -7,6 +7,7 @@ class iris_detection():
         self.cimg = None # original color image
         self.gimg = None # working gray image
         self.pupil = None
+        self.iris = None
         self.img_path = image_path
         self.edges = None
 
@@ -32,9 +33,9 @@ class iris_detection():
     def get_pupil(self):
         # gets pupil circle
         # param2=0.8 allows for smaller circle detection
-        circles = cv.HoughCircles(self.gimg, cv.HOUGH_GRADIENT, 1, 300, param1=80, param2=0.8, minRadius=0, maxRadius=35)
-        circles = np.uint16(np.around(circles))
-        for i in circles[0,:]:
+        circle = cv.HoughCircles(self.gimg, cv.HOUGH_GRADIENT, 1, 300, param1=80, param2=0.8, minRadius=0, maxRadius=35)
+        circle = np.uint16(np.around(circle))
+        for i in circle[0,:]:
             # draw the outer circle
             cv.circle(self.cimg, (i[0],i[1]), i[2], (0,255,0), 2)
             # draw the center of the circle
@@ -44,19 +45,23 @@ class iris_detection():
     def get_iris(self):
         # gets iris circle
         # param2=0.85 allows for larger circle detection
-        circles = cv.HoughCircles(self.gimg, cv.HOUGH_GRADIENT, 1, 300, param1=80, param2=0.85, minRadius=35, maxRadius=70)
-        circles = np.uint16(np.around(circles))
-        for i in circles[0,:]:
-            if( abs(self.pupil[0] - int(i[0])) > 10 or abs(self.pupil[1] - int(i[1])) > 10): # sets iris size to 2.5*pupil if center is too far
-                cv.circle(self.cimg, (self.pupil[0], self.pupil[1]), 2.5*self.pupil[2], (0,255,0), 2)
-                cv.circle(self.cimg, (self.pupil[0], self.pupil[1]), 2, (0,0,255), 2)
+        circle = cv.HoughCircles(self.gimg, cv.HOUGH_GRADIENT, 1, 300, param1=80, param2=0.85, minRadius=35, maxRadius=91)
+        circle = np.uint16(np.around(circle))
+        for i in circle[0,:]:
+            if( abs(self.pupil[0] - int(i[0])) > 11 or abs(self.pupil[1] - int(i[1])) > 11): # sets iris size to 2*pupil if center is too far
+                i[0] = self.pupil[0]
+                i[1] = self.pupil[1]
+                i[2] = 2.6*self.pupil[2]
+                cv.circle(self.cimg, (i[0],i[1]), i[2], (0,255,0), 2)
+                cv.circle(self.cimg, (i[0],i[1]), 2, (0,0,255), 2)
             else:
-                if( int(i[2]) > 2.5*self.pupil[2] ): # sets iris size to 2.5*iris size if detected size is greater than 2.5*iris size
-                    i[2] = 2.5*self.pupil[2]
+                if( int(i[2]) > 2.6*self.pupil[2] ): # sets iris size to 2.5*iris size if detected size is greater than 2.5*iris size
+                    i[2] = 2.6*self.pupil[2]
                 # draw the outer circle
                 cv.circle(self.cimg, (i[0],i[1]), i[2], (0,255,0), 2)
                 # draw the center of the circle
                 cv.circle(self.cimg, (i[0],i[1]), 2, (0,0,255), 2)
+        self.iris = (i[0], i[1], i[2])
 
     def detect(self):
         if (self.load_image()):
