@@ -113,7 +113,10 @@ class iris_detection():
         # cv.imshow("Polar", polar_img)
 
     def extract_features(self):
-        pass
+        orb = cv.ORB_create()
+        key_points = orb.detect(self.work_img, None)
+        key_points, des = orb.compute(self.work_img, key_points)
+        self.work_img = cv.drawKeypoints(self.work_img, key_points, None, color=(0,255,0), flags=0)
 
     def detect(self):
         if (self.load_image()):
@@ -126,6 +129,7 @@ class iris_detection():
             self.remove_extremities()
             self.increase_contrast()
             self.normalize()
+            self.extract_features()
             
             cv.imshow("Result", self.work_img)
             cv.waitKey(0)
@@ -137,3 +141,6 @@ for i in range(12):
     id = iris_detection("./s_t_eyes/" + 's' + str(i + 1) + ".bmp")
     print("Viewing eye number: \t" + str(i + 1) + "\n")
     id.detect()
+
+# id = iris_detection("circle.bmp")
+# id.detect()
