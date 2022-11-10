@@ -68,6 +68,7 @@ class iris_detection():
         mask = np.zeros((self.orig_img.shape[0], self.orig_img.shape[1], 1), np.uint8)
         cv.circle(mask, (self.iris[0], self.iris[1]), self.iris[2], (255,255,255), -1)
         cv.circle(mask, (self.pupil[0], self.pupil[1]), self.pupil[2], (0,0,0), -1)
+        self.load_image()   # reset original image
         self.convert_im2gray()  # reset working image to grayscale of original image
         self.orig_img = cv.bitwise_and(self.work_img, mask)
         # cv.imshow("mask", mask)
