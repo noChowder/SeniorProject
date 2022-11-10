@@ -83,6 +83,9 @@ class iris_detection():
         Y2 = self.iris[0] + self.iris[2]
         self.orig_img = self.orig_img[X1:X2, Y1:Y2]
 
+    def remove_extremities(self):
+        self.orig_img = np.uint8(self.orig_img > 40) * np.uint8(self.orig_img < 140) * self.orig_img
+
     def detect(self):
         if (self.load_image()):
             self.convert_im2gray()
@@ -91,6 +94,7 @@ class iris_detection():
             self.get_iris()
             self.extract_iris()
             self.resize_img()
+            self.remove_extremities()
             cv.imshow("result", self.orig_img)
             cv.waitKey(0)
             cv.destroyAllWindows()
