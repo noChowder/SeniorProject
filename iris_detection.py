@@ -90,25 +90,26 @@ class iris_detection():
 
     def increase_contrast(self):
         # increase intensities of iris pixels
-        M = self.work_img.shape[1]
-        N = self.work_img.shape[0]
+        M, N = self.work_img.shape
         for x in range(M):
             for y in range(N):
                 if (self.work_img[y,x] == 0):
                     continue
-                self.work_img[y,x] = ((np.double(self.work_img[y,x]) - 50 ) / (130-50)) * 255
+                self.work_img[y,x] = ((np.double(self.work_img[y,x]) - 40) / (130-60)) * 255
 
     def normalize(self):
         # convert cartesian image to polar coords
         img = self.work_img.astype(np.float32)
-        polar_img = cv.linearPolar(img, ((self.work_img.shape[0]-1)/2, (self.work_img.shape[1]-1)/2), self.iris[2], cv.WARP_FILL_OUTLIERS)
+        rows,cols = self.work_img.shape
+        center = (cols/2, rows/2)
+        radius = np.sqrt(rows**2 + cols**2)/2
+        polar_img = cv.linearPolar(img, center, radius, cv.WARP_FILL_OUTLIERS)
         # self.work_img = polar_img.astype(np.uint8)
         polar_img = polar_img.astype(np.uint8)
         # rotate and resize image to compare with MATLAB
-        rows, cols = polar_img.shape
-        M = cv.getRotationMatrix2D(((cols-1)/2, (rows-1)/2), 270, 1)
+        M = cv.getRotationMatrix2D(((cols)/2, (rows)/2), 270, 1)
         polar_img = cv.warpAffine(polar_img, M, (cols, rows))
-        self.work_img = cv.resize(polar_img, (self.work_img.shape[0]*3, self.work_img.shape[1]))
+        self.work_img = cv.resize(polar_img, (self.work_img.shape[0]*4, self.work_img.shape[1]*2))
         # cv.imshow("Polar", polar_img)
 
     def extract_features(self):
@@ -125,17 +126,14 @@ class iris_detection():
             self.remove_extremities()
             self.increase_contrast()
             self.normalize()
-            # self.work_img = cv.resize(self.work_img, (self.orig_img.shape[1], self.orig_img.shape[0]))
-            # self.work_img = cv.cvtColor(self.work_img, cv.COLOR_GRAY2BGR)   # change working image to 3-channel
-            # comparison = np.concatenate((self.orig_img, self.work_img), axis=1)
-            # cv.imshow("Original Image vs Working Image", comparison)
+            
             cv.imshow("Result", self.work_img)
             cv.waitKey(0)
             cv.destroyAllWindows()
         else:
             print ('Image "' + self.img_path + '" could not be loaded.')
 
-for i in range(1):
+for i in range(12):
     id = iris_detection("./s_t_eyes/" + 's' + str(i + 1) + ".bmp")
     print("Viewing eye number: \t" + str(i + 1) + "\n")
     id.detect()

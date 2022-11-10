@@ -6,7 +6,7 @@ clear all
 % struct to hold grayscale eye images, edge maps, pupil extraction, and
 % iris extraction
 eyes = struct();
-subject = 1; %iris being tested 1-46
+subject = 3; %iris being tested 1-46
 eye_pos = 'l'; %eye position (left or right)
 switch eye_pos
     case 'l'
