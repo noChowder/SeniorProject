@@ -113,6 +113,7 @@ class iris_detection():
         # cv.imshow("Polar", polar_img)
 
     def extract_features(self):
+        # feature detection using ORB
         orb = cv.ORB_create()
         key_points = orb.detect(self.work_img, None)
         key_points, des = orb.compute(self.work_img, key_points)
