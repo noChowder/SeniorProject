@@ -6,6 +6,7 @@ class iris_detection():
     def __init__(self, image_path):
         self.orig_img = None    # original image
         self.work_img = None    # working image
+        # self.polr_img = None    # image in polar coords
         self.pupil = None
         self.iris = None
         self.img_path = image_path
@@ -70,7 +71,7 @@ class iris_detection():
         cv.circle(mask, (self.pupil[0], self.pupil[1]), self.pupil[2], (0,0,0), -1)
         self.load_image()   # reset original image
         self.convert_im2gray()  # reset working image to grayscale of original image
-        self.orig_img = cv.bitwise_and(self.work_img, mask)
+        self.work_img = cv.bitwise_and(self.work_img, mask)
         # cv.imshow("mask", mask)
         # cv.waitKey(0)
         # cv.destroyAllWindows()
@@ -81,10 +82,37 @@ class iris_detection():
         X2 = self.iris[1] + self.iris[2]
         Y1 = self.iris[0] - self.iris[2]
         Y2 = self.iris[0] + self.iris[2]
-        self.orig_img = self.orig_img[X1:X2, Y1:Y2]
+        self.work_img = self.work_img[X1:X2, Y1:Y2]
 
     def remove_extremities(self):
-        self.orig_img = np.uint8(self.orig_img > 40) * np.uint8(self.orig_img < 140) * self.orig_img
+        # removes extreme pixels from image (eye-lashes)
+        self.work_img = np.uint8(self.work_img > 40) * np.uint8(self.work_img < 140) * self.work_img
+
+    def increase_contrast(self):
+        # increase intensities of iris pixels
+        M = self.work_img.shape[1]
+        N = self.work_img.shape[0]
+        for x in range(M):
+            for y in range(N):
+                if (self.work_img[y,x] == 0):
+                    continue
+                self.work_img[y,x] = ((np.double(self.work_img[y,x]) - 50 ) / (130-50)) * 255
+
+    def normalize(self):
+        # convert cartesian image to polar coords
+        img = self.work_img.astype(np.float32)
+        polar_img = cv.linearPolar(img, ((self.work_img.shape[0]-1)/2, (self.work_img.shape[1]-1)/2), self.iris[2], cv.WARP_FILL_OUTLIERS)
+        # self.work_img = polar_img.astype(np.uint8)
+        polar_img = polar_img.astype(np.uint8)
+        # rotate and resize image to compare with MATLAB
+        rows, cols = polar_img.shape
+        M = cv.getRotationMatrix2D(((cols-1)/2, (rows-1)/2), 270, 1)
+        polar_img = cv.warpAffine(polar_img, M, (cols, rows))
+        self.work_img = cv.resize(polar_img, (self.work_img.shape[0]*3, self.work_img.shape[1]))
+        # cv.imshow("Polar", polar_img)
+
+    def extract_features(self):
+        pass
 
     def detect(self):
         if (self.load_image()):
@@ -95,7 +123,13 @@ class iris_detection():
             self.extract_iris()
             self.resize_img()
             self.remove_extremities()
-            cv.imshow("result", self.orig_img)
+            self.increase_contrast()
+            self.normalize()
+            # self.work_img = cv.resize(self.work_img, (self.orig_img.shape[1], self.orig_img.shape[0]))
+            # self.work_img = cv.cvtColor(self.work_img, cv.COLOR_GRAY2BGR)   # change working image to 3-channel
+            # comparison = np.concatenate((self.orig_img, self.work_img), axis=1)
+            # cv.imshow("Original Image vs Working Image", comparison)
+            cv.imshow("Result", self.work_img)
             cv.waitKey(0)
             cv.destroyAllWindows()
         else:
