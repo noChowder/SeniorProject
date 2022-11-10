@@ -74,6 +74,14 @@ class iris_detection():
         # cv.imshow("mask", mask)
         # cv.waitKey(0)
         # cv.destroyAllWindows()
+    
+    def resize_img(self):
+        # resize the image to show only the filtered parts
+        X1 = self.iris[1] - self.iris[2]
+        X2 = self.iris[1] + self.iris[2]
+        Y1 = self.iris[0] - self.iris[2]
+        Y2 = self.iris[0] + self.iris[2]
+        self.orig_img = self.orig_img[X1:X2, Y1:Y2]
 
     def detect(self):
         if (self.load_image()):
@@ -82,13 +90,14 @@ class iris_detection():
             self.get_pupil()
             self.get_iris()
             self.extract_iris()
+            self.resize_img()
             cv.imshow("result", self.orig_img)
             cv.waitKey(0)
             cv.destroyAllWindows()
         else:
             print ('Image "' + self.img_path + '" could not be loaded.')
 
-for i in range(12):
+for i in range(1):
     id = iris_detection("./s_t_eyes/" + 's' + str(i + 1) + ".bmp")
     print("Viewing eye number: \t" + str(i + 1) + "\n")
     id.detect()
