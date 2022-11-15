@@ -34,7 +34,7 @@ class iris_detection():
     def get_pupil(self):
         # gets pupil circle
         # param2=0.8 allows for smaller circle detection
-        circle = cv.HoughCircles(self.work_img, cv.HOUGH_GRADIENT, 1, 300, param1=80, param2=0.8, minRadius=0, maxRadius=35)
+        circle = cv.HoughCircles(self.work_img, cv.HOUGH_GRADIENT, 1, 300, param1=80, param2=0.8, minRadius=20, maxRadius=35)
         circle = np.uint16(np.around(circle))
         for i in circle[0,:]:
             # draw the outer circle
@@ -76,8 +76,8 @@ class iris_detection():
         # cv.waitKey(0)
         # cv.destroyAllWindows()
     
-    def resize_img(self):
-        # resize the image to show only the filtered parts
+    def crop_img(self):
+        # crop the image to show only the filtered parts
         X1 = self.iris[1] - self.iris[2]
         X2 = self.iris[1] + self.iris[2]
         Y1 = self.iris[0] - self.iris[2]
@@ -125,22 +125,41 @@ class iris_detection():
             self.edge_detection()
             self.get_pupil()
             self.get_iris()
+
+            # cv.imshow("Eye", self.orig_img)
+
             self.extract_iris()
-            self.resize_img()
+            self.crop_img()
             self.remove_extremities()
             self.increase_contrast()
             self.normalize()
             self.extract_features()
-            
+
             cv.imshow("Result", self.work_img)
+
             cv.waitKey(0)
             cv.destroyAllWindows()
         else:
             print ('Image "' + self.img_path + '" could not be loaded.')
 
-for i in range(12):
-    id = iris_detection("./s_t_eyes/" + 's' + str(i + 1) + ".bmp")
-    print("Viewing eye number: \t" + str(i + 1) + "\n")
+num_of_eyes = 5
+subject_num = "1"
+subject_name = "aeva"
+
+# left eye
+# for i in range(num_of_eyes):
+#     directory = "./MMU-Iris-Database/" + subject_num + "/left/" + subject_name + "l" + str(i+1) + ".bmp"
+#     # id = iris_detection("./s_t_eyes/" + 's' + str(i + 1) + ".bmp")
+#     id = iris_detection(directory)
+#     print("Viewing left eye number: \t" + str(i + 1) + "\n")
+#     id.detect()
+
+# right eye
+for i in range(num_of_eyes):
+    directory = "./MMU-Iris-Database/" + subject_num + "/right/" + subject_name + "r" + str(i+1) + ".bmp"
+    # id = iris_detection("./s_t_eyes/" + 's' + str(i + 1) + ".bmp")
+    id = iris_detection(directory)
+    print("Viewing right eye number: \t" + str(i + 1) + "\n")
     id.detect()
 
 # id = iris_detection("circle.bmp")
