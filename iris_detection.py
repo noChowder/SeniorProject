@@ -126,16 +126,16 @@ class iris_detection():
             self.get_pupil()
             self.get_iris()
 
-            # cv.imshow("Eye", self.orig_img)
+            cv.imshow("Eye", self.orig_img)
 
-            self.extract_iris()
-            self.crop_img()
-            self.remove_extremities()
-            self.increase_contrast()
-            self.normalize()
-            self.extract_features()
+            # self.extract_iris()
+            # self.crop_img()
+            # self.remove_extremities()
+            # self.increase_contrast()
+            # self.normalize()
+            # self.extract_features()
 
-            cv.imshow("Result", self.work_img)
+            # cv.imshow("Result", self.work_img)
 
             cv.waitKey(0)
             cv.destroyAllWindows()
@@ -147,12 +147,12 @@ subject_num = "1"
 subject_name = "aeva"
 
 # left eye
-# for i in range(num_of_eyes):
-#     directory = "./MMU-Iris-Database/" + subject_num + "/left/" + subject_name + "l" + str(i+1) + ".bmp"
-#     # id = iris_detection("./s_t_eyes/" + 's' + str(i + 1) + ".bmp")
-#     id = iris_detection(directory)
-#     print("Viewing left eye number: \t" + str(i + 1) + "\n")
-#     id.detect()
+for i in range(num_of_eyes):
+    directory = "./MMU-Iris-Database/" + subject_num + "/left/" + subject_name + "l" + str(i+1) + ".bmp"
+    # id = iris_detection("./s_t_eyes/" + 's' + str(i + 1) + ".bmp")
+    id = iris_detection(directory)
+    print("Viewing left eye number: \t" + str(i + 1) + "\n")
+    id.detect()
 
 # right eye
 for i in range(num_of_eyes):
