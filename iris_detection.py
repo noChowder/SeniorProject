@@ -2,6 +2,7 @@ from cv2 import THRESH_BINARY
 import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
+from skimage.feature import hog
 
 class iris_detection():
     def __init__(self, image_path):
@@ -37,7 +38,7 @@ class iris_detection():
     def get_pupil(self):
         # gets pupil circle
         # param2=0.8 allows for smaller circle detection
-        circle = cv.HoughCircles(self.work_img, cv.HOUGH_GRADIENT, 1, 300, param1=80, param2=0.8, minRadius=20, maxRadius=35)
+        circle = cv.HoughCircles(self.work_img, cv.HOUGH_GRADIENT, 1, 300, param1=80, param2=0.8, minRadius=17, maxRadius=35)
         circle = np.uint16(np.around(circle))
         for i in circle[0,:]:
             # draw the outer circle
@@ -70,7 +71,9 @@ class iris_detection():
     def extract_iris(self):
         # filter pixels outside iris and inside pupil
         mask = np.zeros((self.orig_img.shape[0], self.orig_img.shape[1], 1), np.uint8)
+        # iris mask
         cv.circle(mask, (self.iris[0], self.iris[1]), self.iris[2], (255,255,255), -1)
+        # pupil mask
         cv.circle(mask, (self.pupil[0], self.pupil[1]), self.pupil[2], (0,0,0), -1)
         self.load_image()   # reset original image
         self.convert_im2gray()  # reset working image to grayscale of original image
@@ -89,7 +92,7 @@ class iris_detection():
 
     def remove_extremities(self):
         # removes extreme pixels from image (eye-lashes)
-        self.work_img = np.uint8(self.work_img > 40) * np.uint8(self.work_img < 140) * self.work_img
+        self.work_img = np.uint8(self.work_img > 50) * np.uint8(self.work_img < 130) * self.work_img
 
     def increase_contrast(self):
         # increase intensities of iris pixels
@@ -98,28 +101,18 @@ class iris_detection():
             for y in range(N):
                 if (self.work_img[y,x] == 0):
                     continue
-                self.work_img[y,x] = ((np.double(self.work_img[y,x]) - 40) / (130-60)) * 255
+                self.work_img[y,x] = ((np.double(self.work_img[y,x]) - 50) / (130-50)) * 255
 
     def normalize(self):
-        # convert cartesian image to polar coords
-        img = self.work_img.astype(np.float32)
-        rows,cols = self.work_img.shape
-        center = (cols/2, rows/2)
-        radius = np.sqrt(rows**2 + cols**2)/2
-        polar_img = cv.linearPolar(img, center, radius, cv.WARP_FILL_OUTLIERS)
-        # self.work_img = polar_img.astype(np.uint8)
-        polar_img = polar_img.astype(np.uint8)
-        # rotate and resize image to compare with MATLAB
-        M = cv.getRotationMatrix2D(((cols)/2, (rows)/2), 270, 1)
-        polar_img = cv.warpAffine(polar_img, M, (cols, rows))
-        self.work_img = cv.resize(polar_img, (self.work_img.shape[0]*4, self.work_img.shape[1]*2))
-        # cv.imshow("Polar", polar_img)
+        # convert image to polar
+        rows, cols = self.work_img.shape
+        self.work_img = cv.warpPolar(self.work_img, (0,0), (cols/2, rows/2), 91, cv.WARP_FILL_OUTLIERS)
 
     def extract_features(self):
         # feature detection using ORB
         orb = cv.ORB_create()
         key_points = orb.detect(self.work_img, None)
-        key_points, des = orb.compute(self.work_img, key_points,)
+        key_points, des = orb.compute(self.work_img, key_points)
         self.kp = key_points
         self.des = des
         self.work_img = cv.drawKeypoints(self.work_img, key_points, None, color=(0,255,0), flags=0)
@@ -141,27 +134,29 @@ class iris_detection():
             self.extract_features()
 
             # cv.imshow("Result", self.work_img)
-
             # cv.waitKey(0)
             # cv.destroyAllWindows()
+
+            # show image in matplot
+            img = self.work_img
+            # img = cv.cvtColor(self.work_img, cv.COLOR_GRAY2BGR)
+            plt.imshow(img, cmap="gray"), plt.show()
         else:
             print ('Image "' + self.img_path + '" could not be loaded.')
 
-num_of_eyes = 5
-subject_num = "2"
-subject_name = "bryan"
-stored_kp = []
-stored_des = []
+# num_of_eyes = 5
+# subject_num = "2"
+# subject_name = "bryan"
 
 # left eye
-for i in range(num_of_eyes):
-    directory = "./MMU-Iris-Database/" + subject_num + "/left/" + subject_name + "l" + str(i+1) + ".bmp"
-    # id = iris_detection("./s_t_eyes/" + 's' + str(i + 1) + ".bmp")
-    id = iris_detection(directory)
-    # print("Viewing left eye number: \t" + str(i + 1) + "\n")
-    id.detect()
-    stored_kp.append(id.kp)
-    stored_des.append(id.des)
+# for i in range(num_of_eyes):
+#     directory = "./MMU-Iris-Database/" + subject_num + "/left/" + subject_name + "l" + str(i+1) + ".bmp"
+#     # id = iris_detection("./s_t_eyes/" + 's' + str(i + 1) + ".bmp")
+#     id = iris_detection(directory)
+#     # print("Viewing left eye number: \t" + str(i + 1) + "\n")
+#     id.detect()
+#     stored_kp.append(id.kp)
+#     stored_des.append(id.des)
 
 # right eye
 # for i in range(num_of_eyes):
@@ -171,11 +166,53 @@ for i in range(num_of_eyes):
 #     print("Viewing right eye number: \t" + str(i + 1) + "\n")
 #     id.detect()
 
-# feature matching
-bfmatcher = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
-matches = bfmatcher.match(stored_des[0], stored_des[4])
-matches = sorted(matches, key = lambda x:x.distance)
-img1 = cv.imread("./MMU-Iris-Database/" + subject_num + "/left/" + subject_name + "l" + str(1) + ".bmp")
-img2 = cv.imread("./MMU-Iris-Database/" + subject_num + "/left/" + subject_name + "l" + str(5) + ".bmp")
-img3 = cv.drawMatches(img1, stored_kp[0], img2, stored_kp[1], matches[:10], None, flags=cv.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-plt.imshow(img3), plt.show()
+# dir1 = "./MMU-Iris-Database/1/left/aeval1.bmp"
+# dir2 = "./MMU-Iris-Database/1/left/aeval5.bmp"
+
+def feature_match():
+    # feature matching
+    dir1 = "./MMU-Iris-Database/1/left/aeval2.bmp"
+    dir2 = "./MMU-Iris-Database/2/left/bryanl2.bmp"
+    stored_kp = []
+    stored_des = []
+
+    id1 = iris_detection(dir1)
+    id1.detect()
+
+    id2 = iris_detection(dir2)
+    id2.detect()
+
+    bfmatcher = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
+    matches = bfmatcher.match(id1.des, id2.des)
+    matches = sorted(matches, key = lambda x:x.distance)
+
+    img3 = cv.drawMatches(id1.work_img, id1.kp, id2.work_img, id2.kp, matches[:10], None, flags=cv.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+    plt.imshow(img3), plt.show()
+
+    count = 0
+    for e in matches:
+        if (e.distance < 40):
+            count += 1
+    print("\nThere are " + str(count) + " pairs < 40\n")
+
+def test_12():
+    # test eyes against samples
+    key_points = []
+    descriptors = []
+
+    for i in range(1, 13):
+        dir = "./s_t_eyes/s" + str(i) + ".bmp"
+        id = iris_detection(dir)
+        id.detect()
+        key_points.append(id.kp)
+        descriptors.append(id.des)
+
+    pass
+
+def main():
+    # feature_match()
+    test_12()
+    pass
+
+if __name__ == "__main__":
+    main()
