@@ -143,8 +143,8 @@ class iris_detection():
             print ('Image "' + self.img_path + '" could not be loaded.')
 
 num_of_eyes = 5
-subject_num = "1"
-subject_name = "aeva"
+subject_num = "2"
+subject_name = "bryan"
 
 # left eye
 for i in range(num_of_eyes):
