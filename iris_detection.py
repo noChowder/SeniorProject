@@ -1,6 +1,7 @@
 from cv2 import THRESH_BINARY
 import numpy as np
 import cv2 as cv
+import matplotlib.pyplot as plt
 
 class iris_detection():
     def __init__(self, image_path):
@@ -11,6 +12,8 @@ class iris_detection():
         self.iris = None
         self.img_path = image_path
         self.edges = None
+        self.kp = None
+        self.des = None
 
     def load_image(self):
         self.orig_img = cv.imread(self.img_path)
@@ -116,7 +119,9 @@ class iris_detection():
         # feature detection using ORB
         orb = cv.ORB_create()
         key_points = orb.detect(self.work_img, None)
-        key_points, des = orb.compute(self.work_img, key_points)
+        key_points, des = orb.compute(self.work_img, key_points,)
+        self.kp = key_points
+        self.des = des
         self.work_img = cv.drawKeypoints(self.work_img, key_points, None, color=(0,255,0), flags=0)
 
     def detect(self):
@@ -126,41 +131,51 @@ class iris_detection():
             self.get_pupil()
             self.get_iris()
 
-            cv.imshow("Eye", self.orig_img)
+            # cv.imshow("Eye", self.orig_img)
 
-            # self.extract_iris()
-            # self.crop_img()
-            # self.remove_extremities()
-            # self.increase_contrast()
-            # self.normalize()
-            # self.extract_features()
+            self.extract_iris()
+            self.crop_img()
+            self.remove_extremities()
+            self.increase_contrast()
+            self.normalize()
+            self.extract_features()
 
             # cv.imshow("Result", self.work_img)
 
-            cv.waitKey(0)
-            cv.destroyAllWindows()
+            # cv.waitKey(0)
+            # cv.destroyAllWindows()
         else:
             print ('Image "' + self.img_path + '" could not be loaded.')
 
 num_of_eyes = 5
 subject_num = "2"
 subject_name = "bryan"
+stored_kp = []
+stored_des = []
 
 # left eye
 for i in range(num_of_eyes):
     directory = "./MMU-Iris-Database/" + subject_num + "/left/" + subject_name + "l" + str(i+1) + ".bmp"
     # id = iris_detection("./s_t_eyes/" + 's' + str(i + 1) + ".bmp")
     id = iris_detection(directory)
-    print("Viewing left eye number: \t" + str(i + 1) + "\n")
+    # print("Viewing left eye number: \t" + str(i + 1) + "\n")
     id.detect()
+    stored_kp.append(id.kp)
+    stored_des.append(id.des)
 
 # right eye
-for i in range(num_of_eyes):
-    directory = "./MMU-Iris-Database/" + subject_num + "/right/" + subject_name + "r" + str(i+1) + ".bmp"
-    # id = iris_detection("./s_t_eyes/" + 's' + str(i + 1) + ".bmp")
-    id = iris_detection(directory)
-    print("Viewing right eye number: \t" + str(i + 1) + "\n")
-    id.detect()
+# for i in range(num_of_eyes):
+#     directory = "./MMU-Iris-Database/" + subject_num + "/right/" + subject_name + "r" + str(i+1) + ".bmp"
+#     # id = iris_detection("./s_t_eyes/" + 's' + str(i + 1) + ".bmp")
+#     id = iris_detection(directory)
+#     print("Viewing right eye number: \t" + str(i + 1) + "\n")
+#     id.detect()
 
-# id = iris_detection("circle.bmp")
-# id.detect()
+# feature matching
+bfmatcher = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
+matches = bfmatcher.match(stored_des[0], stored_des[4])
+matches = sorted(matches, key = lambda x:x.distance)
+img1 = cv.imread("./MMU-Iris-Database/" + subject_num + "/left/" + subject_name + "l" + str(1) + ".bmp")
+img2 = cv.imread("./MMU-Iris-Database/" + subject_num + "/left/" + subject_name + "l" + str(5) + ".bmp")
+img3 = cv.drawMatches(img1, stored_kp[0], img2, stored_kp[1], matches[:10], None, flags=cv.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+plt.imshow(img3), plt.show()
