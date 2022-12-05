@@ -217,7 +217,6 @@ def test_12():
             samp_img = "./s_t_eyes/s" + str(i) + ".bmp"
             id = iris_detection(samp_img)
             id.detect()
-            key_points.append(id.kp)
             descriptors.append(id.des)
 
             bfmatcher = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
