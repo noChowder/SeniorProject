@@ -138,9 +138,9 @@ class iris_detection():
             # cv.destroyAllWindows()
 
             # show image in matplot
-            img = self.work_img
+            # img = self.work_img
             # img = cv.cvtColor(self.work_img, cv.COLOR_GRAY2BGR)
-            plt.imshow(img, cmap="gray"), plt.show()
+            # plt.imshow(img, cmap="gray"), plt.show()
         else:
             print ('Image "' + self.img_path + '" could not be loaded.')
 
@@ -171,10 +171,10 @@ class iris_detection():
 
 def feature_match():
     # feature matching
-    dir1 = "./MMU-Iris-Database/1/left/aeval2.bmp"
-    dir2 = "./MMU-Iris-Database/2/left/bryanl2.bmp"
-    stored_kp = []
-    stored_des = []
+    # dir1 = "./MMU-Iris-Database/1/left/aeval2.bmp"
+    # dir2 = "./MMU-Iris-Database/2/left/bryanl2.bmp"
+    dir1 = "./s_t_eyes/s10.bmp"
+    dir2 = "./s_t_eyes/t1_10.bmp"
 
     id1 = iris_detection(dir1)
     id1.detect()
@@ -189,23 +189,54 @@ def feature_match():
     img3 = cv.drawMatches(id1.work_img, id1.kp, id2.work_img, id2.kp, matches[:10], None, flags=cv.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
     plt.imshow(img3), plt.show()
 
+    # change to modifer accuracy
+    dist = 40
     count = 0
     for e in matches:
-        if (e.distance < 40):
+        if (e.distance < dist):
             count += 1
-    print("\nThere are " + str(count) + " pairs < 40\n")
+    print("\nThere are " + str(count) + " pairs < " + str(dist) + "\n")
 
 def test_12():
     # test eyes against samples
-    key_points = []
-    descriptors = []
+    total = 0
+    for e in range(1, 13):
+        key_points = []
+        descriptors = []
 
-    for i in range(1, 13):
-        dir = "./s_t_eyes/s" + str(i) + ".bmp"
-        id = iris_detection(dir)
+
+        test_eye = e
+
+        test_img = "./s_t_eyes/t1_" + str(test_eye) + ".bmp"
+        id = iris_detection(test_img)
         id.detect()
         key_points.append(id.kp)
         descriptors.append(id.des)
+
+        for i in range(1, 13):
+            samp_img = "./s_t_eyes/s" + str(i) + ".bmp"
+            id = iris_detection(samp_img)
+            id.detect()
+            key_points.append(id.kp)
+            descriptors.append(id.des)
+
+            bfmatcher = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
+            matches = bfmatcher.match(descriptors[0], descriptors[i])
+            matches = sorted(matches, key = lambda x:x.distance)
+
+            count = 0
+            for e in matches:
+                if (e.distance < 37):
+                    count += 1
+            # print("\nThere were " + str(count) + " matches in this test.\n")
+            if (count > 10):
+                if (test_eye == i):
+                    print("\nMatched test eye\t" + str(test_eye) + "\twith sample eye\t\t" + str(i) + "\033[32m" + "\tMATCH\n" + "\033[0m")
+                    total += 1
+                else:
+                    print("\nMatched test eye\t" + str(test_eye) + "\twith sample eye\t\t" + str(i) + "\n")
+
+    print("\033[32m" + "\nTOTAL CORRECT MATCHES: " + str(total) + "\n" + "\033[0m")
 
     pass
 
