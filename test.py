@@ -52,10 +52,42 @@ def test_sitil_pscll():
         print("\nTesting sitil eye:\t" + str(i+1) + "\tagainst pcll:\t6-10\n")
         compare(descriptors[i], descriptors[5:10])
 
+def test_leftEye_registeredEyes_left(subTestNum, subjectTest, subSampNum, subjectSamp, eyeNum):
+    # test a subject left eye against a set of a subjects left eyes
+    dirTest = "./MMU-Iris-Database/" + str(subTestNum) + "/left/" + subjectTest + "l" + str(eyeNum) + ".bmp"
+    idTest = iris_detection(dirTest)
+    idTest.detect()
+
+    desSamp = []
+    for i in range(1, 6):
+        dirSamp = "./MMU-Iris-Database/" + str(subSampNum) + "/left/" + subjectSamp + "l" + str(i) + ".bmp"
+        idSamp = iris_detection(dirSamp)
+        idSamp.detect()
+        desSamp.append(idSamp.des)
+    
+    total = 0
+    for s in range(0, 5):
+        bfmatcher = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
+        matches = bfmatcher.match(idTest.des, desSamp[s])
+        matches = sorted(matches, key = lambda x:x.distance)
+        count = 0
+        for e in matches:
+            if (e.distance < 37):
+                count += 1
+        if (count > 10):
+            total += 1
+    
+    if (total >= 3):
+        print("\nEye is a match.\n")
+    else:
+        print("\nEye does not match.\n")
+
 def main():
     # test_aeval()
     # test_pcll()
-    test_sitil_pscll()
+    # test_sitil_pscll()
+    # test_leftEye_registeredEyes_left(2, "bryan", 5, 21, "mazwan")
+    test_leftEye_registeredEyes_left(1, "aeva", 2, "bryan", 5)
     pass
 
 if __name__ == "__main__":

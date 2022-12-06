@@ -2,7 +2,6 @@ from cv2 import THRESH_BINARY
 import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
-from skimage.feature import hog
 
 class iris_detection():
     def __init__(self, image_path):
@@ -171,10 +170,10 @@ class iris_detection():
 
 def feature_match():
     # feature matching
-    # dir1 = "./MMU-Iris-Database/1/left/aeval2.bmp"
-    # dir2 = "./MMU-Iris-Database/2/left/bryanl2.bmp"
-    dir1 = "./s_t_eyes/s10.bmp"
-    dir2 = "./s_t_eyes/t1_10.bmp"
+    dir1 = "./MMU-Iris-Database/2/left/bryanl5.bmp"
+    dir2 = "./MMU-Iris-Database/2/left/bryanl2.bmp"
+    # dir1 = "./s_t_eyes/s10.bmp"
+    # dir2 = "./s_t_eyes/t1_10.bmp"
 
     id1 = iris_detection(dir1)
     id1.detect()
@@ -190,7 +189,7 @@ def feature_match():
     plt.imshow(img3), plt.show()
 
     # change to modifer accuracy
-    dist = 40
+    dist = 37
     count = 0
     for e in matches:
         if (e.distance < dist):
@@ -240,8 +239,8 @@ def test_12():
     pass
 
 def main():
-    # feature_match()
-    test_12()
+    feature_match()
+    # test_12()
     pass
 
 if __name__ == "__main__":
