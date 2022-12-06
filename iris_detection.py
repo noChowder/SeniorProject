@@ -126,11 +126,11 @@ class iris_detection():
             # cv.imshow("Eye", self.orig_img)
 
             self.extract_iris()
-            self.crop_img()
-            self.remove_extremities()
-            self.increase_contrast()
-            self.normalize()
-            self.extract_features()
+            # self.crop_img()
+            # self.remove_extremities()
+            # self.increase_contrast()
+            # self.normalize()
+            # self.extract_features()
 
             # cv.imshow("Result", self.work_img)
             # cv.waitKey(0)
@@ -170,8 +170,8 @@ class iris_detection():
 
 def feature_match():
     # feature matching
-    dir1 = "./MMU-Iris-Database/2/left/bryanl5.bmp"
-    dir2 = "./MMU-Iris-Database/2/left/bryanl2.bmp"
+    dir1 = "./MMU-Iris-Database/43/left/winl3.bmp"
+    dir2 = "./MMU-Iris-Database/43/left/winl5.bmp"
     # dir1 = "./s_t_eyes/s10.bmp"
     # dir2 = "./s_t_eyes/t1_10.bmp"
 

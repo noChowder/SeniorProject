@@ -82,15 +82,64 @@ def test_leftEye_registeredEyes_left(subTestNum, subjectTest, subSampNum, subjec
     else:
         print("\nEye does not match.\n")
 
-def collectAllLeft(descriptors):
+def collectAllLeft():
+    descriptors = []
     for i in range(1, 47):
-        for j in range(1, 6):
-            if (i == 1): name = "aeva" 
-            elif (i == 2): name = "bryan"
-            elif (i == 3): name = "chingyc"
-            
-            dir = "./MMU-Iris-Database/" + str(i) + "/left/" + name + str(j) + ".bmp"
-        print(dir)
+        if (i == 1): name = "aeva" 
+        elif (i == 2): name = "bryan"
+        elif (i == 3): name = "chingyc"
+        elif (i == 4): continue
+        elif (i == 5): name = "chongpk"
+        elif (i == 6): name = "christine"
+        elif (i == 7): name = "chuals"
+        elif (i == 8): name = "eugeneho"
+        elif (i == 9): name = "fatma"
+        elif (i == 10): name = "fiona"
+        elif (i == 11): name = "hock"
+        elif (i == 12): name = "kelvin"
+        elif (i == 13): name = "lec"
+        elif (i == 14): name = "liujw"
+        elif (i == 15): name = "loke"
+        elif (i == 16): name = "lowyf"
+        elif (i == 17): name = "lpj"
+        elif (i == 18): name = "mahsk"
+        elif (i == 19): name = "maran"
+        elif (i == 20): name = "mas"
+        elif (i == 21): name = "mazwan"
+        elif (i == 22): name = "mimi"
+        elif (i == 23): name = "mingli"
+        elif (i == 24): name = "ngkokwhy"
+        elif (i == 25): name = "nkl"
+        elif (i == 26): name = "noraza"
+        elif (i == 27): name = "norsuhaidah"
+        elif (i == 28): name = "ongbl"
+        elif (i == 29): name = "pcl"
+        elif (i == 30): name = "philip"
+        elif (i == 31): name = "rosli"
+        elif (i == 32): name = "sala"
+        elif (i == 33): name = "sarina"
+        elif (i == 34): name = "siti"
+        elif (i == 35): name = "suzaili"
+        elif (i == 36): name = "tanwn"
+        elif (i == 37): name = "thomas"
+        elif (i == 38): name = "tick"
+        elif (i == 39): name = "tingcy"
+        elif (i == 40): name = "tonghl"
+        elif (i == 41): name = "vimala"
+        elif (i == 42): name = "weecm"
+        # elif (i == 43): name = "win"
+        elif (i == 43): continue
+        elif (i == 44): name = "yann"
+        elif (i == 45): name = "zaridah"
+        elif (i == 46): name = "zulaikah"
+
+        for j in range(1, 6):          
+            dir = "./MMU-Iris-Database/" + str(i) + "/left/" + name + "l" + str(j) + ".bmp"
+            id = iris_detection(dir)
+            id.detect()
+            # plt.imshow(id.work_img, cmap="gray"), plt.title(name + str(j)), plt.show()
+            descriptors.append(id.des)
+    return descriptors
     
 def main():
     # test_aeval()
@@ -98,8 +147,8 @@ def main():
     # test_sitil_pscll()
     # test_leftEye_registeredEyes_left(2, "bryan", 5, 21, "mazwan")
     # test_leftEye_registeredEyes_left(1, "aeva", 2, "bryan", 5)
-    descriptors = []
-    collectAllLeft(descriptors)
+    # descriptors = []
+    descriptors = collectAllLeft()
     pass
 
 if __name__ == "__main__":
