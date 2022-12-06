@@ -82,12 +82,24 @@ def test_leftEye_registeredEyes_left(subTestNum, subjectTest, subSampNum, subjec
     else:
         print("\nEye does not match.\n")
 
+def collectAllLeft(descriptors):
+    for i in range(1, 47):
+        for j in range(1, 6):
+            if (i == 1): name = "aeva" 
+            elif (i == 2): name = "bryan"
+            elif (i == 3): name = "chingyc"
+            
+            dir = "./MMU-Iris-Database/" + str(i) + "/left/" + name + str(j) + ".bmp"
+        print(dir)
+    
 def main():
     # test_aeval()
     # test_pcll()
     # test_sitil_pscll()
     # test_leftEye_registeredEyes_left(2, "bryan", 5, 21, "mazwan")
-    test_leftEye_registeredEyes_left(1, "aeva", 2, "bryan", 5)
+    # test_leftEye_registeredEyes_left(1, "aeva", 2, "bryan", 5)
+    descriptors = []
+    collectAllLeft(descriptors)
     pass
 
 if __name__ == "__main__":
